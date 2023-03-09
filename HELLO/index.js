@@ -1,7 +1,8 @@
-// var express = require('express');
-// var app = express();
+var express = require('express');
+var app = express();
 
-// var things = require('./things.js');
+var things = require('./things.js');
+var middleware = require('./middleware.js');
 // app.get('/hello', function(req, res){
 //    res.send("Hello World!");
 // });
@@ -14,18 +15,29 @@
 //  });
 
  
-//  //both index.js and things.js should be in same directory
-//  app.use('/things', things);
-//  app.get('/:id', function(req, res){
-//     res.send('The id you specified is ' + req.params.id);
-//  });
-//  app.get('/things/:name/:id', function(req, res) {
-//     res.send('id: ' + req.params.id + ' and name: ' + req.params.name);
-//  });
-
+ //both index.js and things.js should be in same directory
+//  var things = require('./things.js');
+ app.use('/things', things);
+ app.get('/:id', function(req, res){
+    res.send('The id you specified is ' + req.params.id);
+ });
+ app.get('/things/:name/:id', function(req, res) {
+    res.send('id: ' + req.params.id + ' and name: ' + req.params.name);
+ });
+ app.use('/middleware',middleware);
+ 
+// app.use('/things',things);
+// app.get('/:id',function(req,res)
+// {
+//     res.send('The id you specified is' +req.params.id);
+// });
+// app.get('/things/:name/:id',function(req ,res)
+// {
+//   res.send('id: '+req.params.id +' and name:' +req.params.name);
+// });
 //  //First middleware before response is sent
 // app.use(function(req, res, next){
-//     console.log("Start");
+//     res.send("Start");
 //     next();
 //  });
  
@@ -35,9 +47,9 @@
 //     next();
 //  });
  
-//  app.use('/', function(req, res){
-//     console.log('End');
-//  });
+ app.use('/', function(req, res){
+    console.log('End');
+ });
 //  app.get('/dynamic_view', function(req, res){
 //     res.render('dynamic', {
 //        name: "TutorialsPoint", 
@@ -48,49 +60,60 @@
  
 // app.use(express.static('public'));
 
-// var cookieParser = require('cookie-parser');
-// app.use(cookieParser());
+var cookieParser = require('cookie-parser');
+app.use(cookieParser());
 
-//     app.get('/', function(req, res){
-//         res.cookie('name', 'express').send('cookie set'); //Sets name = express
-//      });
-//app.listen(4000);
-var express = require('express');
-var bodyParser = require('body-parser');
-var multer = require('multer');
-var upload = multer();
-const router = express.Router()
-var app = express();
+    app.get('/', function(req, res){
+  
+        res.cookie('name', 'express').send('cookie set'); //Sets name = express
+     });
 
-// app.use(cookieparser());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(upload.array());
+// var express = require('express');
+// var bodyParser = require('body-parser');
+// var multer = require('multer');
+// var upload = multer();
+// const router = express.Router()
+// var app = express();
 
-//Require the Router we defined in movies.js
-var movies = require('./movies.js');
+// // app.use(cookieparser());
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(upload.array());
 
-//Use the Router on the sub route /movies
-app.use('/movies', movies);
-router.get('/', function(req, res){
-   res.json(movies);
-});
+// //Require the Router we defined in movies.js
+// var movies = require('./movies.js');
 
-app.get('/error', function(req, res){
-   //Create an error and pass it to the next function
-   var err = new Error("Something went wrong");
-   next(err);
-});
+// //Use the Router on the sub route /movies
+// app.use('/movies', movies);
+// router.get('/', function(req, res){
+//    res.json(movies);
+// });
 
-/*
- * other route handlers and middleware here
- * ....
- */
+// app.get('/error', function(req, res){
+//    //Create an error and pass it to the next function
+//    var err = new Error("Something went wrong");
+//    next(err);
+// });
 
-//An error handling middleware
-app.use(function(err, req, res, next) {
-   res.status(500);
-   res.send("Oops, something went wrong.")
-});
+// /*
+//  * other route handlers and middleware here
+//  * ....
+//  */
 
-app.listen(5000);
+// //An error handling middleware
+// app.use(function(err, req, res, next) {
+//    res.status(500);
+//    res.send("Oops, something went wrong.")
+// });
+
+// app.listen(5000);
+app.use(function(req, res, next){
+    console.log("A new request received at " + Date.now());
+    
+    //This function call is very important. It tells that more processing is
+    //required for the current request and is in the next middleware
+    // function route handler.
+    next();
+
+ });
+ app.listen(5000);
